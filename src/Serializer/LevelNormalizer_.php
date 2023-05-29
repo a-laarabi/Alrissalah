@@ -3,6 +3,7 @@
 namespace App\Serializer;
 
 use App\Entity\Level;
+use App\Entity\Payment;
 use App\Repository\CourseContentRepository;
 use App\Repository\UserProgressesRepository;
 use App\Repository\PaymentRepository;
@@ -52,11 +53,17 @@ class LevelNormalizer_ implements NormalizerInterface, NormalizerAwareInterface
         $countCC = $this->courseContentRepository->countByLevel($object->getId());
         $countUP = $this->userProgressesRepository->countByUser($user);
 
-        $paymentExists = $this->paymentRepository->findOneBy(['user' => $user]);
+        $payment = $this->paymentRepository->findOneBy(['user' => $user]);
 
         $object->setCompleted($countCC !== 0 ? $countUP * 100 / $countCC : 0);
-        $object->setPaid($paymentExists !== null);
 
+        if ($payment !== null && $payment->getStatus() === Payment::STATUS_FULFILLED) {
+            $paidLevel = $payment->getDetail()->getLevel();
+            $object->setPaidLevel($paidLevel);
+            $object->setPaid(true);
+        } else {
+            $object->setPaid(false);
+        }
         $context[self::ALREADY_CALLED] = true;
 
         return $this->normalizer->normalize($object, $format, $context);
