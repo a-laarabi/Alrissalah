@@ -73,4 +73,15 @@ class PaymentDetail
 
         return $this;
     }
+
+    #[Groups(['payment_detail:read'])]
+    public function getLevel(): ?int
+    {
+        if ($this->data !== null) {
+            $data = json_decode($this->data, true);
+            return $data['level'] ?? null;
+        }
+
+        return null;
+    }
 }
