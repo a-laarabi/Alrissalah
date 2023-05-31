@@ -4,6 +4,7 @@ namespace App\Serializer;
 
 use App\Entity\Level;
 use App\Repository\CourseContentRepository;
+use App\Repository\PaymentRepository;
 use App\Repository\UserProgressesRepository;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\Serializer\Normalizer\NormalizerAwareInterface;
@@ -19,12 +20,14 @@ class LevelNormalizer implements NormalizerInterface, NormalizerAwareInterface
     private Security $security;
     private UserProgressesRepository $userProgressesRepository;
     private CourseContentRepository $courseContentRepository;
+    private PaymentRepository $paymentRepository;
 
-    public function __construct(Security $security, UserProgressesRepository $userProgressesRepository, CourseContentRepository $courseContentRepository)
+    public function __construct(Security $security, UserProgressesRepository $userProgressesRepository, CourseContentRepository $courseContentRepository, PaymentRepository $paymentRepository)
     {
         $this->security = $security;
         $this->userProgressesRepository = $userProgressesRepository;
         $this->courseContentRepository = $courseContentRepository;
+        $this->paymentRepository = $paymentRepository;
     }
 
     public function supportsNormalization($data, $format = null, array $context = []): bool
@@ -42,7 +45,7 @@ class LevelNormalizer implements NormalizerInterface, NormalizerAwareInterface
         $countUP = $this->userProgressesRepository->countByUser($this->security->getUser());
 
         $object->setCompleted($countCC !== 0 ? $countUP * 100 / $countCC : 0);
-        $object->setPayed(true);
+        $object->setPayed($this->paymentRepository->countByLevel($object) !== 0);
 
         $context[self::ALREADY_CALLED] = true;
 

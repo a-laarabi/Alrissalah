@@ -11,6 +11,9 @@ use Symfony\Component\Serializer\Annotation\Groups;
 #[ORM\Entity(repositoryClass: PaymentDetailRepository::class)]
 class PaymentDetail
 {
+    const TYPE_BOOK = 'book';
+    const TYPE_LEVEL = 'level';
+
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
@@ -72,16 +75,5 @@ class PaymentDetail
         $this->payment = $payment;
 
         return $this;
-    }
-
-    #[Groups(['payment_detail:read'])]
-    public function getLevel(): ?int
-    {
-        if ($this->data !== null) {
-            $data = json_decode($this->data, true);
-            return $data['level'] ?? null;
-        }
-
-        return null;
     }
 }
