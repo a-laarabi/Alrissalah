@@ -11,6 +11,9 @@ use Symfony\Component\Serializer\Annotation\Groups;
 #[ORM\Entity(repositoryClass: PaymentDetailRepository::class)]
 class PaymentDetail
 {
+    const TYPE_BOOK = 'book';
+    const TYPE_LEVEL = 'level';
+
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
